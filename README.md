@@ -8,7 +8,7 @@ the 10 most common web application attacks, their impact and how they can be pre
 2. [Broken Authentication](#broken-authentication-and-session-management)
 3. Sensitive Data Exposure
 4. XML Eternal Entities
-5. Broken Access Control
+5. [Broken Access Control](#broken-access-control)
 6. Security Misconfiguration
 7. [Cross-Site Scripting (XSS)](#cross-site-scripting-xss)
 8. Insecure Deserialization
@@ -69,3 +69,15 @@ Another example:
 ---
 
 ### Broken Access Control
+- What is it? Restrictions on what authenticated users are allowed to do are not properly enforced 
+- What is the impact? Attackers can assess data, view sensitive files and modify data
+- How to prevent? 
+  - Application should not solely rely on user input; check access rights on UI level and server level for requests to resources (e.g. data)
+  - Deny access by default 
+
+Example:
+- patient visits doctor 
+- patient belongs to hospital.com/patients/account 
+- when patient visits doctor, doctor is logged in. patient remembers doctors url: hospital.com/doctor/account
+- patient remembers doctors url, they authenticate themselves with their account, then input the doctors url 
+- patient can then see all the doctors patients info - patient is logged in as doctor 
