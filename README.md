@@ -47,3 +47,25 @@ What to do?
 ---
 
 ### Cross-site Scripting (XSS)
+- What is it? Untrusted user input is interpreted by browser and executed 
+- Impact? Hijack user sessions, deface websites, change content (redirecting to malicious website)
+- Prevention? 
+  - escape untrasted input data
+  - latest UI framework
+
+OWASP has a cheatsheet: https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html
+
+Example:
+- Social media page of Bob
+- Bob has a photo, text, a malicious script, and more text
+- called a "persistent XSS attack" as its persisted in the DB of the social media page 
+- Alice views Bobs page, and now Alice and her page is affected. Eve views Alices page, and shes infected now too 
+
+Another example:
+- non-persistent 
+- Attacker creates URL with malicious code 
+- someone clicks this URL and is effected 
+
+---
+
+### Broken Access Control
