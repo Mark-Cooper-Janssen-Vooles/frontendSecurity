@@ -14,6 +14,8 @@ the 10 most common web application attacks, their impact and how they can be pre
 8. Insecure Deserialization
 9. Using Components with Known vulnerabilities
 10. Insufficient logging & monitoring
+Others:
+- [insufficent attack protection](#insufficient-attack-protection)
 
 ---
 
@@ -105,3 +107,22 @@ Another example:
 - someone clicks this URL and is effected 
 
 ---
+
+
+
+
+---
+
+### Insufficient Attack Protection
+- What is it? Applications that are attacked but do not recognize it as an attack, letting the attacker attack again and again
+- What is the impact? Leak of data, decrease application availability
+- How to prevent?
+  - Detect and log normal and abnormal use of application
+  - Respond by automatically blocking abnormal users or range of IP addresses
+  - Patch abnormal use quickly 
+
+  e.g. 
+  - Bob is a malicious user, he logs on 100 times per minute 
+  - the backend tries to process log of attempts of Bob and fails 
+  - Alice can't log on because the system is now unavailable 
+
