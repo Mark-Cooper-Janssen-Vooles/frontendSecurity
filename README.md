@@ -25,6 +25,7 @@ Other previous top 10:
 - [insufficent attack protection](#insufficient-attack-protection)
 - [cross-site request forgery](#cross-site-request-forgery-csrf)
 - [underprotected apis](#underprotected-apis)
+- [cryptographic failures](#cryptographic-failures)
 
 ---
 
@@ -193,7 +194,17 @@ Another example:
   - Use latest framework
   - Vulnerabilities are typically found by penetration testers and secure code reviewers 
 
+---
 
+## Cryptographic Failures
+- What is it? Ineffective execution & configuration of cryptography (e.g. FTP, HTTP, MD5, WEP) - old protocols 
+- What is the impact? Sensitive data exposure 
+- How to prevent?
+  - Never roll your own crypto! Use well-known open source libraries
+  - Static code analysis tools can discover this issue 
+  - Key management (creation, destruction, distribution, storage and use)
+
+---
 ---
 
 ## Penetration Testing 
