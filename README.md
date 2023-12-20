@@ -14,8 +14,9 @@ the 10 most common web application attacks, their impact and how they can be pre
 8. Insecure Deserialization
 9. Using Components with Known vulnerabilities
 10. Insufficient logging & monitoring
-Others:
+Other previous top 10:
 - [insufficent attack protection](#insufficient-attack-protection)
+- [cross-site request forgery](#cross-site-request-forgery-csrf)
 
 ---
 
@@ -125,4 +126,14 @@ Another example:
   - Bob is a malicious user, he logs on 100 times per minute 
   - the backend tries to process log of attempts of Bob and fails 
   - Alice can't log on because the system is now unavailable 
+
+---
+
+### Cross-site Request Forgery (CSRF)
+- What is it? An attack that forces a victim to execute unwanted actions on a web application in which they're currently authenticated 
+- What is the impact? Victim unknowingly executes transaction 
+- How to prevent?
+  - Reauthenticate for all critical actions (e.g. transfer money)
+  - Include hidden token in request 
+  - Most web frameworks have built-in CSRF protection, but it isn't enabled by default!
 
