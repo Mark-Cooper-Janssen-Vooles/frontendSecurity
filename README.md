@@ -1,5 +1,12 @@
 # Web Security 
 
+Contents:
+- [OWASP Top 10 Web Application Security](#owasp-top-10-web-application-security)
+- [Website hacking penetration](#penetration-testing)
+- [React specific security](#react-specific-security)
+
+---
+
 ## OWASP Top 10 Web Application Security 
 the 10 most common web application attacks, their impact and how they can be prevented or mitigated
 
@@ -7,7 +14,7 @@ the 10 most common web application attacks, their impact and how they can be pre
 1. [Injection](#injection)
 2. [Broken Authentication](#broken-authentication-and-session-management)
 3. [Sensitive Data Exposure](#sensitive-data-exposure)
-4. XML Eternal Entities
+4. [XML Eternal Entities](#xml-external-entities)
 5. [Broken Access Control](#broken-access-control)
 6. [Security Misconfiguration](#security-misconfiguration)
 7. [Cross-Site Scripting (XSS)](#cross-site-scripting-xss)
@@ -117,6 +124,17 @@ Another example:
   - Always stay current with third-party components
   - If possible, follow best practice of virtual patching
 
+---
+
+### XML External Entities 
+- What is it? Many older or poorly configured XML processors/parsers evaluate external entity references within XML documents 
+- What is the impact? Extraction of data, remote code execution and denial of service attack 
+- How to prevent?
+  - Use JSON to avoid serialization of sensitive data 
+  - Patch or upgrade all XML processors and libraries 
+  - Disable XXE and implement whitelisting 
+  - Detect, resolve and verify XXE with static application security testing tools 
+
 
 ---
 
@@ -157,3 +175,11 @@ Another example:
   - Use latest framework
   - Vulnerabilities are typically found by penetration testers and secure code reviewers 
 
+
+---
+
+## Penetration Testing 
+
+---
+
+## React Specific Security
