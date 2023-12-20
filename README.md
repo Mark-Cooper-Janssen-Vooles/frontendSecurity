@@ -6,7 +6,7 @@ the 10 most common web application attacks, their impact and how they can be pre
 ### 2021 top 10
 1. [Injection](#injection)
 2. [Broken Authentication](#broken-authentication-and-session-management)
-3. Sensitive Data Exposure
+3. [Sensitive Data Exposure](#sensitive-data-exposure)
 4. XML Eternal Entities
 5. [Broken Access Control](#broken-access-control)
 6. [Security Misconfiguration](#security-misconfiguration)
@@ -46,25 +46,13 @@ What to do?
 
 ---
 
-### Cross-site Scripting (XSS)
-- What is it? Untrusted user input is interpreted by browser and executed 
-- Impact? Hijack user sessions, deface websites, change content (redirecting to malicious website)
-- Prevention? 
-  - escape untrasted input data
-  - latest UI framework
-
-OWASP has a cheatsheet: https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html
-
-Example:
-- Social media page of Bob
-- Bob has a photo, text, a malicious script, and more text
-- called a "persistent XSS attack" as its persisted in the DB of the social media page 
-- Alice views Bobs page, and now Alice and her page is affected. Eve views Alices page, and shes infected now too 
-
-Another example:
-- non-persistent 
-- Attacker creates URL with malicious code 
-- someone clicks this URL and is effected 
+### Sensitive Data Exposure
+- What is it? Sensitive data is exposed, e.g. social security numbers, passwords, health records
+- What is the impact? Data that is lost, exposed or corrupted can have severe impact on business continuity
+- How to prevent?
+  - Always obscure data (credit card numbers for example are almost always obscured)
+  - Update cryptographic algorithm (MD5, DES, SHA-0 and SHA-1 are insecure)
+  - Use salted encryption on storage of passwords 
 
 ---
 
@@ -93,3 +81,27 @@ Example:
   - Static tools that scan code for default settings
   - Keep patching, updating and testing the system
   - Regularly audit system deployment in production
+
+--- 
+
+### Cross-site Scripting (XSS)
+- What is it? Untrusted user input is interpreted by browser and executed 
+- Impact? Hijack user sessions, deface websites, change content (redirecting to malicious website)
+- Prevention? 
+  - escape untrasted input data
+  - latest UI framework
+
+OWASP has a cheatsheet: https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html
+
+Example:
+- Social media page of Bob
+- Bob has a photo, text, a malicious script, and more text
+- called a "persistent XSS attack" as its persisted in the DB of the social media page 
+- Alice views Bobs page, and now Alice and her page is affected. Eve views Alices page, and shes infected now too 
+
+Another example:
+- non-persistent 
+- Attacker creates URL with malicious code 
+- someone clicks this URL and is effected 
+
+---
