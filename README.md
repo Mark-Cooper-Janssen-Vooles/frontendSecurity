@@ -12,11 +12,12 @@ the 10 most common web application attacks, their impact and how they can be pre
 6. [Security Misconfiguration](#security-misconfiguration)
 7. [Cross-Site Scripting (XSS)](#cross-site-scripting-xss)
 8. Insecure Deserialization
-9. Using Components with Known vulnerabilities
+9. [Using Components with Known vulnerabilities](#using-components-with-known-vulnerabilities)
 10. Insufficient logging & monitoring
 Other previous top 10:
 - [insufficent attack protection](#insufficient-attack-protection)
 - [cross-site request forgery](#cross-site-request-forgery-csrf)
+- [underprotected apis](#underprotected-apis)
 
 ---
 
@@ -109,7 +110,15 @@ Another example:
 
 ---
 
+### Using Components with Known Vulnerabilities
+- What is it? Third-party components that the focal system uses (e.g. authentication frameworks)
+- What is the impact? Depending on the vulnerability it could range from subtle to seriously bad 
+- How to prevent?
+  - Always stay current with third-party components
+  - If possible, follow best practice of virtual patching
 
+
+---
 
 
 ---
@@ -136,4 +145,15 @@ Another example:
   - Reauthenticate for all critical actions (e.g. transfer money)
   - Include hidden token in request 
   - Most web frameworks have built-in CSRF protection, but it isn't enabled by default!
+
+---
+
+### Underprotected APIs
+- What is it? Applications expose rich connectivitiy options through APIs, in the browser to a user. These APIs are often unprotected and contain numerous vulnerabilities
+- What is the impact? Data theft, corruption, unauthorized access, etc 
+- How to prevent? 
+  - Ensure secure communication between client browser and server API
+  - Reject untrusted/invalid input data
+  - Use latest framework
+  - Vulnerabilities are typically found by penetration testers and secure code reviewers 
 
