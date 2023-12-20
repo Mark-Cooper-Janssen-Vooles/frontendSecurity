@@ -26,6 +26,7 @@ Other previous top 10:
 - [cross-site request forgery](#cross-site-request-forgery-csrf)
 - [underprotected apis](#underprotected-apis)
 - [cryptographic failures](#cryptographic-failures)
+- [insecure design](#insecure-design)
 
 ---
 
@@ -197,7 +198,7 @@ Another example:
 ---
 
 ## Cryptographic Failures
-- What is it? Ineffective execution & configuration of cryptography (e.g. FTP, HTTP, MD5, WEP) - old protocols 
+- What is it? Ineffective execution & configuration of cryptography (e.g. Telnet, FTP, HTTP, MD5, WEP) - old protocols 
 - What is the impact? Sensitive data exposure 
 - How to prevent?
   - Never roll your own crypto! Use well-known open source libraries
@@ -205,6 +206,14 @@ Another example:
   - Key management (creation, destruction, distribution, storage and use)
 
 ---
+
+### Insecure Design 
+- What is it? A failure to use security by design methods / principles resulting in a weak or insecure design
+- What is the impact? Breach of confidentiality, integrity and availability
+- How to prevent?
+  - Secure lifecycle (embed security in each phase; requirements, design, development, test, deployment, maintenance and decomissioning)
+  - Use manual (e.g. code review, threat modelling) and automated (e.g. SAST and DAST) methods to improve security
+
 ---
 
 ## Penetration Testing 
