@@ -20,7 +20,7 @@ the 10 most common web application attacks, their impact and how they can be pre
 7. [Cross-Site Scripting (XSS)](#cross-site-scripting-xss)
 8. [Insecure Deserialization](#insecure-deserialization)
 9. [Using Components with Known vulnerabilities](#using-components-with-known-vulnerabilities)
-10. Insufficient logging & monitoring
+10. [Insufficient logging & monitoring](#insufficient-logging--monitoring)
 Other previous top 10:
 - [insufficent attack protection](#insufficient-attack-protection)
 - [cross-site request forgery](#cross-site-request-forgery-csrf)
@@ -145,9 +145,17 @@ Another example:
   - Disable XXE and implement whitelisting 
   - Detect, resolve and verify XXE with static application security testing tools 
 
-
 ---
 
+### Insufficient logging & monitoring
+- Average time of noticing when an attacker is in your system: 190 days!
+- What is it? Not able to witness or discover an attack when it happens or happened
+- What is the impact? Allows attacker to persist and tamper, extract or destroy your data without you noticing it 
+- How to prevent? 
+  - Log login, access control and server-side input validation failures
+  - Ensure logs can be consumed easily, but annot be tampered with
+  - Continuously improve monitoring and alerting process
+  - Mitigate impact of breach: Rotate, repave and Repair
 
 ---
 
