@@ -10,6 +10,8 @@ Contents:
 ## OWASP Top 10 Web Application Security 
 the 10 most common web application attacks, their impact and how they can be prevented or mitigated
 
+Quick way to test your web app security: https://www.ssllabs.com/ssltest/index.html
+
 ### 2021 top 10
 1. [Injection](#injection)
 2. [Broken Authentication](#broken-authentication-and-session-management)
