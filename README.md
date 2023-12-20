@@ -9,7 +9,7 @@ the 10 most common web application attacks, their impact and how they can be pre
 3. Sensitive Data Exposure
 4. XML Eternal Entities
 5. [Broken Access Control](#broken-access-control)
-6. Security Misconfiguration
+6. [Security Misconfiguration](#security-misconfiguration)
 7. [Cross-Site Scripting (XSS)](#cross-site-scripting-xss)
 8. Insecure Deserialization
 9. Using Components with Known vulnerabilities
@@ -81,3 +81,15 @@ Example:
 - when patient visits doctor, doctor is logged in. patient remembers doctors url: hospital.com/doctor/account
 - patient remembers doctors url, they authenticate themselves with their account, then input the doctors url 
 - patient can then see all the doctors patients info - patient is logged in as doctor 
+
+--- 
+
+### Security Misconfiguration
+- What is it? Human mistake of misconfiguring the system (e.g. providing a user with a default password) - very broad 
+- What is the impact? Depends on the misconfiguration. Worst misconfiguration could result in loss of the system
+- How to prevent? 
+  - Force change of default credentials
+  - Least privilege: turn everything off by default in production (debugging, admin interface, etc)
+  - Static tools that scan code for default settings
+  - Keep patching, updating and testing the system
+  - Regularly audit system deployment in production
