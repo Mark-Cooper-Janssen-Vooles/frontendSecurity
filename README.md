@@ -27,6 +27,7 @@ Other previous top 10:
 - [underprotected apis](#underprotected-apis)
 - [cryptographic failures](#cryptographic-failures)
 - [insecure design](#insecure-design)
+- [software and data integrity failures](#)
 
 ---
 
@@ -213,6 +214,19 @@ Another example:
 - How to prevent?
   - Secure lifecycle (embed security in each phase; requirements, design, development, test, deployment, maintenance and decomissioning)
   - Use manual (e.g. code review, threat modelling) and automated (e.g. SAST and DAST) methods to improve security
+
+---
+
+### Software and Data Integrity Failures
+- What is it? E.g. an application that relies on updates from a trusted external source, however the update mechanism is compromised
+- What is the impact? Supply chain attack; data exfiltration, ransomeware, etc 
+- How to prevent?
+  - Verify input (in this case software updates with digital signatures)
+  - Continuously check for vulnerabilities in dependencies 
+  - Use software bill of materials 
+  - unconnected backups 
+
+e.g. Supplier alice sents update package to suppliers distributing software server, which sends update packages to multiple clients (good) but instead Malicious Bob sends malicious update package to supplier server, and this server then sends the malicious update package to multiple clients who are now all compromised. 
 
 ---
 
