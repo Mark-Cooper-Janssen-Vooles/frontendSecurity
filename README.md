@@ -18,7 +18,7 @@ the 10 most common web application attacks, their impact and how they can be pre
 5. [Broken Access Control](#broken-access-control)
 6. [Security Misconfiguration](#security-misconfiguration)
 7. [Cross-Site Scripting (XSS)](#cross-site-scripting-xss)
-8. Insecure Deserialization
+8. [Insecure Deserialization](#insecure-deserialization)
 9. [Using Components with Known vulnerabilities](#using-components-with-known-vulnerabilities)
 10. Insufficient logging & monitoring
 Other previous top 10:
@@ -114,6 +114,16 @@ Another example:
 - non-persistent 
 - Attacker creates URL with malicious code 
 - someone clicks this URL and is effected 
+
+---
+
+### Insecure Deserialization
+- What is it? Error in translations between objects
+- What is the impact? Remote code execution, denial of service. Impact depends on type of data on that server 
+- How to prevent? 
+  - Validate user input
+  - Implement digital signatures on serialized objects to enforce integrity
+  - Restrict usage and monitor deserialization and log exceptions and failure
 
 ---
 
