@@ -230,6 +230,18 @@ e.g. Supplier alice sents update package to suppliers distributing software serv
 
 ---
 
+### Server-side request forgery 
+- What is it? Misuse of prior established trust to access other resources. A web application is fetching a remote resource without validating the user-supplied URL
+- What is the impact? Scan and connect to internal services. In some cases the attacker could access sensitive data
+- How to prevent?
+  - Sanitize and validate all client-supplied data
+  - Segment remote server access functionality in separate networks to reduce the impact
+  - Limitng connections to specific ports only (e.g. 443 for https)
+
+i.e. Bob sends malformed request to impersonate the web server, web server sends requests to internal server. The DB server trusts the web server, doesn't sanitise anything, then executes the request from Bob (thus bob could access sensitive data)
+
+---
+
 ## Penetration Testing 
 
 ---
