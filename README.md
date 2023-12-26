@@ -2,7 +2,6 @@
 
 Contents:
 - [OWASP Top 10 Web Application Security](#owasp-top-10-web-application-security)
-- [Website hacking penetration](#penetration-testing)
 - [React specific security](#react-specific-security)
 
 ---
@@ -200,7 +199,7 @@ Another example:
 
 ---
 
-## Cryptographic Failures
+### Cryptographic Failures
 - What is it? Ineffective execution & configuration of cryptography (e.g. Telnet, FTP, HTTP, MD5, WEP) - old protocols 
 - What is the impact? Sensitive data exposure 
 - How to prevent?
@@ -244,8 +243,7 @@ i.e. Bob sends malformed request to impersonate the web server, web server sends
 
 ---
 
-## Penetration Testing 
-
----
-
 ## React Specific Security
+
+markreactsecurity
+fLsFVIyncllADbQh
