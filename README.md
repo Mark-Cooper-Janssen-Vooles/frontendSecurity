@@ -245,5 +245,216 @@ i.e. Bob sends malformed request to impersonate the web server, web server sends
 
 ## React Specific Security
 
-markreactsecurity
-fLsFVIyncllADbQh
+### JSON Web tokens 
+- you can use json web tokens over something like cookies and sessions 
+- over at jwt.io we can put our json web token in 
+- a json web token is a away to transfer information between two parties (i.e. one party is the frontend react app, the other party is your api)
+  - they include a security feature that makes sure it wasn't tampered with along the way
+- there are 3 portions: the header, the payload and the signature. 
+  - the signature is a combination of the header, the payload and a secret combined to create a hash. If the header or payload is changed, the secret becomes invalid because it relie on them. 
+
+- when we need to sign json web tokens, i.e. when a user signs-in, we can use a library like jsonwebtoken. 
+
+````js
+import * as jsonwebtoken;
+
+const secretKey = 'secret123' // never use something simple and guessable like this 
+
+const payload = {
+  sub: '123', // sub claim, sub for subject, i.e. userId 123
+  iss: 'example.com', // the issuer
+  aud: 'api.example.com' // the audience
+}
+
+const token = jwt.sign(payload, secretKey, {
+  expiresIn: '1h'
+})
+````
+Do's and Don'ts: JSON Web Tokens 
+
+Don'ts:
+- you can store your tokens in local storage to see how they work, but once they're working you need to move them to an http-only cookie or keep them in the react state (browser memory)
+  - risky to keep them in local storage, since its easily scriptable 
+- don't keep secret keys that sign the tokens in the browser, only keep them in the backend and verify them there
+- don't redecode tokens in the client 
+
+Do's:
+- keep long, strong, unguessable secrets. we use `secret123` for example only - don't do this in prod
+- keep token payload small 
+- use HTTPS - if not, then if someone intercepts your request people can find the tokens on the authorisation headers 
+
+### Managing users authenticated state in frontend 
+- This is necessary for you to be able to tell app how it can be used 
+  - i.e. a dropdown menu that is set when the user is logged in (i.e 'logged out' etc)
+
+1. Need to store the users authentication details in state 
+    - Some prefer 'composition', this guy likes to use reacts 'context' api (avoid prop-drilling, similar to redux)
+````js
+function App() {
+  return (
+    <Router>
+      <AuthProvider> // this is the 'context'
+        <FetchProvider> // this is another 'context' 
+          <div className="bg-gray-100">
+            <AppRoutes />
+          </div>
+        </FetchProvider>
+      </AuthProvider>
+    </Router>
+  );
+}
+````
+
+2. Need to persist on refresh 
+    - one way to do this is storing auth information in local storage
+    - you should not be storing json web tokens in local storage (we're just doing this temporarily)
+      - not safe a local storage is susceptible to cross site scripting attacks 
+
+````js
+  const token = localStorage.getItem('token');
+  const userInfo = localStorage.getItem('userInfo');
+  const expiresAt = localStorage.getItem('expiresAt');
+  const [authState, setAuthState] = useState({
+    token,
+    expiresAt,
+    userInfo: userInfo ? JSON.parse(userInfo) : {}
+  });
+
+  const setAuthInfo = ({ token, userInfo, expiresAt}) => {
+    localStorage.setItem('token', token)
+    localStorage.setItem('userInfo', JSON.stringify(userInfo))
+    localStorage.setItem('expiresAt', expiresAt)
+    setAuthState({
+      token, 
+      userInfo, 
+      expiresAt
+    })
+  }
+````
+
+3. We need auth tools to help app make decisions about showing content to the user, or allowing navigation to particular places.
+    - i.e. is the user authenticated or not? 
+    - this is a big difference between round-trip applicaitons or single page applications when it comes to application state 
+    - round-trip: every move goes to the backend, constructs html and returns it to the client. should be pretty simple.
+    - when dealing with a SPA: those decisions need to be made on the SPA 
+    - authentication on the client side: there is nothing you can do to prevent the user from setting localStorage etc to whatever they wanted to get authenticated 
+    ` const isAuthenticated = () => localStorage.getItem('isAuthenticated') === true;`
+    - slightly better way to do this: 
+    ````js
+    const isAuthenticated = () => {
+      if (!authState.token || !authState.expiresAt) {
+        return false;
+      }
+      return new Date().getTime() / 1000 < authState.expiresAt; 
+    }
+
+    const isAdmin = () => {
+      return authState.userInfo.role === 'admin';
+    }
+    ````
+    - you can also use 'isAdmin' to conditionally expose parts of the UI, or just check the auth state:
+
+    ````js
+    const navItems = [
+      {
+        label: 'Dashboard',
+        path: 'dashboard',
+        icon: faChartLine,
+        allowedRoles: ['user', 'admin']
+      },
+      {
+        label: 'Inventory',
+        path: 'inventory',
+        icon: faChartPie,
+        allowedRoles: ['admin']
+      },
+    ]
+
+    const Sidebar = () => {
+      const authContext = useContext(AuthContext);
+      const { role } = authContext.authState.userInfo;
+
+      return (
+        <section className="h-screen">
+          <div className="w-16 sm:w-24 m-auto">
+            <img src={logo} rel="logo" alt="Logo" />
+          </div>
+          <div className="mt-20">
+            {navItems.map((navItem, i) =>
+              <>
+              {navItem.allowedRoles.includes(role) && (
+                <NavItemContainer key={i}>
+                  <NavItem navItem={navItem} />
+                </NavItemContainer>
+              )}
+              </>
+            )}
+          </div>
+        </section>
+      );
+    };
+    ````
+    - another application of this would be guarding client side routes based on auth states:
+    ````js
+    // in this code we use AuthenticatedRoutes for any routes that need to be authenticated.
+    // if the user is not autheticated, they are redirected back to homepage  
+    const AuthenticatedRoute = ({ children, ...rest }) => {
+      const authContext = useContext(AuthContext);
+      return (
+        <Route {...rest} render={() =>
+          authContext.isAuthenticated() ? (
+            <AppShell>
+              {children}
+            </AppShell> 
+          ) : (
+            <Redirect to="/" />
+          )
+        } 
+        />
+      )
+    }
+
+    const AppRoutes = () => {
+
+      return (
+        <Switch>
+          <Route path="/login">
+            <Login />
+          </Route>
+          <Route path="/signup">
+            <Signup />
+          </Route>
+          <Route exact path="/">
+            <Home />
+          </Route>
+          <AuthenticatedRoute path="/dashboard" >
+            <Dashboard />
+          </AuthenticatedRoute>
+          <AuthenticatedRoute path="/inventory">
+              <Inventory />
+          </AuthenticatedRoute>
+          <AuthenticatedRoute path="/account">
+            <Account />
+          </AuthenticatedRoute>
+          <AuthenticatedRoute path="/settings">
+            <Settings />
+          </AuthenticatedRoute>
+          <AuthenticatedRoute path="/users">
+            <Users />
+          </AuthenticatedRoute>
+          <Route path="*">
+            <FourOFour />
+          </Route>
+        </Switch>
+      );
+    };
+    ````
+    - in some cases we may want certain routes accessible for certain roles only, i.e. maybe inventory is accessible only for those with admin access.
+    
+
+4. Logging out
+    - When a user logs into a website that users cookies and sessions, there is a session that gets stored on the server for the user, and a cookie that gets sent back to the browser. 
+      - When they want to log out, its a matter of clearning that session in the server and the cookie on the browser 
+    - we're using stateless authentication using json web tokens so it works a little differently: 
+      - theres nothing on the server to identify the state of the user
+      - when the user goes to logout, we just need to clear local storage and reset auth state 
