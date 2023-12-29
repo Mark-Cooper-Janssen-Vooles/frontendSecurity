@@ -244,6 +244,7 @@ i.e. Bob sends malformed request to impersonate the web server, web server sends
 ---
 
 ## React Specific Security
+project referenced is here: https://github.com/Mark-Cooper-Janssen-Vooles/orbit-clone
 
 ### JSON Web tokens 
 - you can use json web tokens over something like cookies and sessions 
@@ -270,7 +271,7 @@ const token = jwt.sign(payload, secretKey, {
   expiresIn: '1h'
 })
 ````
-Do's and Don'ts: JSON Web Tokens 
+#### Do's and Don'ts: JSON Web Tokens 
 
 Don'ts:
 - you can store your tokens in local storage to see how they work, but once they're working you need to move them to an http-only cookie or keep them in the react state (browser memory)
@@ -450,7 +451,7 @@ function App() {
     };
     ````
     - in some cases we may want certain routes accessible for certain roles only, i.e. maybe inventory is accessible only for those with admin access.
-    
+
 
 4. Logging out
     - When a user logs into a website that users cookies and sessions, there is a session that gets stored on the server for the user, and a cookie that gets sent back to the browser. 
@@ -458,3 +459,215 @@ function App() {
     - we're using stateless authentication using json web tokens so it works a little differently: 
       - theres nothing on the server to identify the state of the user
       - when the user goes to logout, we just need to clear local storage and reset auth state 
+
+
+### Add a JWT (JSON Web Token) to an Axios Request 
+
+- using axios, `npm install axios`
+
+````js
+import React, { useCallback, useState } from 'react'
+import axios from 'axios';
+
+const App = () => {
+  const [users, setUsers] = useState([]);
+  const [requestError, setRequestError] = useState([]);
+
+  const accessToken = 'fakeJsonWebToken';
+  const apiUrl = 'http://localhost:3001/api';
+
+  const authAxios = axios.create({
+    baseURL: apiUrl,
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+
+  const fetchData = useCallback(async () => {
+    try {
+      // fetch and set users 
+      const result = await authAxios.get('/users/all');
+      setUsers(result.data);
+    } catch (err) {
+      // set request error 
+    }
+  })
+
+}
+````
+
+- add a http interceptor to axios:
+  - essentially what we need is the JWT token to be added to the headers/authorization 
+
+
+### Protecting API Endpoints 
+#### Add a JWT Vericiation Middleware 
+- the key is going to be that you ensure API endpoints are properly locked down (more backend security)
+- using `npm i express-jwt` for middleware jwt checking
+````js
+// from this:
+app.get('/api/dashboard-data', (req, res) =>
+  res.json(dashboardData)
+);
+
+//we then can create a middleware that intercepts the request, checks the token is valid, then forwards our request if it is 
+app.use((req, res, next) => {
+  console.log(req.headers);
+  // some logic here to check token validity
+  next();
+})
+
+// or we could use a library that does that for us
+const checkJwt = jwt({
+  secret: process.env.JWT_SECRET, // used to both sign and verify token
+  issuer: 'api.orbit',
+  audience: 'api.orbit'
+})
+// then stick it into 2nd arguemt
+app.get('/api/dashboard-data', checkJwt, (req, res) =>
+  res.json(dashboardData)
+);
+````
+
+#### Attach a user to the request object 
+- we want to change a users role 
+- to do this we will take the JWT, which when decoded has the 'sub' key-value, which stands for 'subject' and contains a string which is the user's id as generated in mongoDB.
+  - we want to use this id when we make requests to the database to identify which user's role to change 
+````js
+// attaches the user to the request
+const attachUser = (req, res, next) => {
+  const token = req.headers.authorization;
+  if (!token) {
+    return res.status(401).json({ message: 'authentication invalid'})
+  }
+
+  const decodedToken = jwtDecode(token.slice(7)); // remove 'bearer' from start of token, as per jwtDecode library api
+
+  if (!decodedToken) return res.status(401).json({message: 'there was a problem authorizing the request'})
+
+  req.user = decodedToken;
+  next();
+}
+
+app.use(attachUser); // anything that comes beneath here will use this middleware
+
+app.get('/api/dashboard-data', checkJwt, (req, res) => {
+  console.log(req.user);
+  return res.json(dashboardData);
+});
+````
+
+#### Limit Access to Admin users 
+- a hacker could snoop around and see how this JWT web app is structured, and attempt to call the api using their token. currently we're just being bounced back because of the react frontend - but the API itself isn't currently secure with regards to the users role 
+  - i.e. if we change 'AdminRoute' to 'AuthenticatedRoute' in app.js, we can go directly to /inventory and add an item 
+- so we will create a custom middleware in the API to check the role  
+````js
+// custom middleware
+const requireAdmin = (req, res, next) => {
+  const { role } = req.user;
+  if (role !== 'admin') {
+    return res.status(401).json({ message: 'insufficient role' });
+  }
+  next();
+};
+
+// we can put this on all the inventory routes now.
+// we also want to check the jwt validity too, i.e:
+app.get('/api/inventory', checkJwt, requireAdmin, async (req, res) => {
+  try {
+    const inventoryItems = await InventoryItem.find();
+    res.json(inventoryItems);
+  } catch (err) {
+    return res.status(400).json({ error: err });
+  }
+});
+````
+
+#### Get the user ID from requests 
+- currently users that can create inventory items aren't having their userIds being saved into the mongo DB, lets change the schema:
+````js
+const inventoryItemModel = new Schema({
+  user: { type: mongoose.Types.ObjectId, required: true }, // required now true
+  name: { type: String, required: true },
+  itemNumber: { type: String, required: true },
+  unitPrice: { type: Number, required: true },
+  image: {
+    type: String,
+    required: true,
+    default:
+      'https://images.unsplash.com/photo-1580169980114-ccd0babfa840?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=800&h=600&fit=crop&ixid=eyJhcHBfaWQiOjF9'
+  }
+});
+````
+- then when we do our .post in the server, we attach the userId:
+````js
+app.get('/api/inventory', checkJwt, requireAdmin, async (req, res) => {
+  try {
+    const { sub } = req.user;
+    const inventoryItems = await InventoryItem.find({
+      user: sub // when we GET, we want to only get the items for that user!
+    });
+    res.json(inventoryItems);
+  } catch (err) {
+    return res.status(400).json({ error: err });
+  }
+});
+
+app.post('/api/inventory', checkJwt, requireAdmin, async (req, res) => {
+  try {
+    const { sub } = req.user;
+    // here we attach the user:
+    const input = Object.assign({}, req.body, {
+      user: sub
+    })
+    const inventoryItem = new InventoryItem(input);
+    await inventoryItem.save();
+    res.status(201).json({
+      message: 'Inventory item created!',
+      inventoryItem
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(400).json({
+      message: 'There was a problem creating the item'
+    });
+  }
+});
+
+app.delete('/api/inventory/:id', checkJwt, requireAdmin, async (req, res) => {
+  try {
+    const { sub } = req.user;
+    const deletedItem = await InventoryItem.findOneAndDelete(
+      { _id: req.params.id, user: sub } 
+      // make sure we delete the inventory item only with the correct userid
+    );
+    res.status(201).json({
+      message: 'Inventory item deleted!',
+      deletedItem
+    });
+  } catch (err) {
+    return res.status(400).json({
+      message: 'There was a problem deleting the item.'
+    });
+  }
+});
+````
+- are we confident we can use the JWT for all this?
+  - as long as we are checking the JWT's validity and we're confident in our password / jwt hashing algorithm / secure jwt secret - yes we can be be confident in using this.
+  - as soon as a hacker tries to change anything in the jwt (i.e. making the role as 'admin'), the jwt will be invalid 
+
+### Hardening the Application
+#### Use lazy loading to limit access to code 
+#### Maintain an Allowed Origin List for Tokens 
+#### Sanitize Content when setting InnerHTML
+#### Carry out a cross-site scripting attack 
+#### Steal a JSON Web Token 
+#### Sanitize a Cross-Site Scripting Attack 
+
+### Switching to Cookies 
+#### How Cookies Work 
+#### Add a Proxy to the API
+#### Set a Cookie on Login and Signup 
+#### Stop Storing JWT in local storage 
+#### VErify JWT from Cookie 
+#### Add a Cross-Site Request Forgery Token
