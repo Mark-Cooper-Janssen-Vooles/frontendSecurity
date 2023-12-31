@@ -658,8 +658,72 @@ app.delete('/api/inventory/:id', checkJwt, requireAdmin, async (req, res) => {
 
 ### Hardening the Application
 #### Use lazy loading to limit access to code 
+- The frontend of our application is currently protecting routes such that if we're not logged in and we tried to go to the dashboard, we'd get kicked back over to the home page.
+  - Some may consider it a security issue that even though users can't get to those routes, the code for them is still loaded in the browser. 
+  - you can see this in the network tab looking into the main.chunk.js, all the inventory.js code is there for example 
+- To change this, we change the imports to use 'lazy' from React:
+````js
+import React, { useContext, lazy, Suspense } from 'react';
+// import Account from './pages/Account';
+// import Dashboard from './pages/Dashboard';
+const Account = lazy(() => import('./pages/Account'));
+const Dashboard = lazy(() => import('./pages/Dashboard')); // also did this for /users and /settings 
+// we also now need to wrap our components in a 'Suspense' component, which will provide a loading state while it is being lazily loaded:
+const AppRoutes = () => {
+  return (
+     <Suspense fallback={<div>Loading...</div>}>
+       <Switch>
+         <Route path="/login">
+           <Login />
+         </Route>
+         <Route path="/signup">
+           <Signup />
+         </Route>
+         <Route exact path="/">
+           <Home />
+         </Route>
+         <AuthenticatedRoute path="/dashboard" >
+           <Dashboard />
+        <AuthenticatedRoute path="/dashboard" >
+        <AuthenticatedRoute path="/account">
+          <Account />
+        </AuthenticatedRoute>
+      </Switch>
+    </Suspense>
+  )
+}
+````
+- note that lazy loading also offers performance benefits for the user (less to download!)
+
 #### Maintain an Allowed Origin List for Tokens 
+- If you set up a global interceptor for your axios requests so that your access token can get your API - you need to be aware that this means your access token is going to ANY server that you make a request to with axios - not such a great thing. 
+  - you should use an axios instance that is specific to your API, or config every axios request and don't use a global interceptor. 
+````js 
+  authAxios.interceptors.request.use(
+    config => {
+      const { origin } = new URL(config.url);
+      const allowedOrigins = ['http://localhost:3001'];
+
+      // line below makes sure it only goes to our API
+      if (allowedOrigins.includes(origin)) { 
+        config.headers.Authorization = `Bearer ${authContext.authState.token}`;
+      }
+      return config;
+    },
+    error => {
+      return Promise.reject(error);
+    }
+  )
+````
+
 #### Sanitize Content when setting InnerHTML
+- 'setInnerHTML' is one of the most common cross-site scripting attacks 
+  - it is when a user can input html into a page, and there are legit use cases for it. e.g. users supply their own formatted content for some kind of rich text editor. 
+  - an example of an attack:
+  `<img src=??? onerror="alert('hi')" />`
+  - when the image can't find the src, it errors and then runs the onerror function. this function could be malicious, stealing users data or performing actions on their behalf. 
+- in react there is no 'setInnerHTML' property, they've named it 'dangerouslySetInnerHTML' to warn the developer
+
 #### Carry out a cross-site scripting attack 
 #### Steal a JSON Web Token 
 #### Sanitize a Cross-Site Scripting Attack 
